@@ -65,7 +65,7 @@ void Listbox::addElement(std::string s) {
 }
 
 void Listbox::removeElement() {
-    if (elements[index_of_selected] == selected && elements[index_of_selected] != "" && selected != "") {
+    if (index_of_selected != -1 && elements[index_of_selected] == selected && elements[index_of_selected] != "" && selected != "") {
 
         elements.erase(elements.begin() + index_of_selected);
 
@@ -85,7 +85,7 @@ void Listbox::removeElement() {
 }
 
 void Listbox::setSelected() {
-    if (index_of_selected < int(elements.size()) && elements[index_of_selected] != "")
+    if (index_of_selected != -1 && index_of_selected < int(elements.size()) && elements[index_of_selected] != "")
         selected = elements[index_of_selected];
     else if (index_of_selected > 0) {
         selected = elements[index_of_selected - 1];
