@@ -50,30 +50,53 @@ void Listbox::addItemToVector(std::string s, int n) {
     item_vector.push_back(new Item<string, int> (s, n));
 }
 
+void Listbox::addItemToFilteredVector(std::string s, int n) {
+    filtered_item_vector.push_back(new Item<string, int> (s, n));
+}
+
 void Listbox::removeItemFromVector(int index) {
     item_vector.erase(item_vector.begin() + index);
 }
 
-void Listbox::updateElements() {
-    elements.clear();
-    for (size_t i = 0; i < item_vector.size(); i++) {
-        stringstream ss;
-        ss << item_vector[i]->getT1() << "(" << item_vector[i]->getT2() << ")";
-        elements.push_back(ss.str());
-    }
+void Listbox::removeItemFromFilteredVector(int index) {
+    item_vector.erase(filtered_item_vector.begin() + index);
 }
 
-void Listbox::autoAdjustSelectedItem() {
+void Listbox::updateElements(bool checked) {
+    elements.clear();
+    if (!checked)
+        for (size_t i = 0; i < item_vector.size(); i++) {
+            stringstream ss;
+            ss << item_vector[i]->getT1() << "(" << item_vector[i]->getT2() << ")";
+            elements.push_back(ss.str());
+        }
+    else if (checked)
+        for (size_t i = 0; i < filtered_item_vector.size(); i++) {
+            stringstream ss;
+            ss << filtered_item_vector[i]->getT1() << "(" << filtered_item_vector[i]->getT2() << ")";
+            elements.push_back(ss.str());
+        }
+}
+
+void Listbox::autoAdjustSelectedItem(bool checked) {
     if (index_of_selected > 0 && wheel_offset > 0) {
         index_of_selected--;
         wheel_offset--;
     }
-    while(index_of_selected > int(item_vector.size()) - 1) {
-        index_of_selected--;
-        if (wheel_offset > 0){
-            wheel_offset--;
+    if (!checked)
+        while(index_of_selected > int(item_vector.size()) - 1) {
+            index_of_selected--;
+            if (wheel_offset > 0){
+                wheel_offset--;
+            }
         }
-    }
+    else if (checked)
+        while(index_of_selected > int(filtered_item_vector.size()) - 1) {
+            index_of_selected--;
+            if (wheel_offset > 0){
+                wheel_offset--;
+            }
+        }
 }
 
 

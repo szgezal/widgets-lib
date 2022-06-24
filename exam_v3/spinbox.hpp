@@ -7,12 +7,12 @@
 class Spinbox : public Widget
 {
 protected:
-    int lowerlim, upperlim, n = 10;
+    int lowerlim, upperlim, n;
     ButtonUp* btn1;
     ButtonDown* btn2;
 
 public:
-    Spinbox(Application*, int, int, int, int, int, int);
+    Spinbox(Application*, int, int, int, int, int, int, int);
     void draw() override;
     void handle(genv::event, Widget*) override;
     int getNum();

@@ -4,8 +4,8 @@
 using namespace genv;
 
 
-Spinbox::Spinbox(Application* _parent, int _x, int _y, int _sx, int _sy, int _lowerlim, int _upperlim):
-                 Widget(_parent, _x, _y, _sx, _sy), lowerlim(_lowerlim), upperlim(_upperlim)
+Spinbox::Spinbox(Application* _parent, int _x, int _y, int _sx, int _sy, int _lowerlim, int _upperlim, int _n):
+                 Widget(_parent, _x, _y, _sx, _sy), lowerlim(_lowerlim), upperlim(_upperlim), n(_n)
 {
     btn1 = new ButtonUp(this, x + size_x - size_y/2, y, size_y/2, size_y/2);
     btn2 = new ButtonDown(this, x + size_x - size_y/2, y + size_y/2, size_y/2, size_y/2);

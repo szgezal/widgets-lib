@@ -44,7 +44,6 @@ void FunktorButton::handle(genv::event ev, Widget*) {
         f();
 }
 
-
 bool FunktorButton::onWidget(genv::event ev) {
     return ev.pos_x > x && ev.pos_y > y &&
            ev.pos_x < x + size_x && ev.pos_y < y + size_y;

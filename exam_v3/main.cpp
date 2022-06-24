@@ -23,13 +23,14 @@ const int height = 600, width = 500;
 class App : public Application {
 protected:
     Spinbox* spb1;
-    FunktorButton* add_button;
+    FunktorButton* main_button;
     FunktorButton* delete_button1;
     FunktorButton* delete_button2;
     Inputbox* ib;
     StaticText* free_space_text;
     Listbox* lb1;
     Listbox* lb2;
+    Checkbox* rb;
 
     /*
     Spinbox* spb2;
@@ -42,7 +43,6 @@ protected:
     FunktorButton* _search;
     Textreader* tr;
     Checkbox* cb;
-    Checkbox* rb;
     */
 
 public:
@@ -55,13 +55,13 @@ public:
 
         ib = new Inputbox(this, 20, 20, 200, 40, "|", "", {});
 
-        spb1 = new Spinbox(this, 240, 20, 200, 40, 1, 10000);
+        spb1 = new Spinbox(this, 240, 20, 200, 40, 1, 10000, 10);
 
         lb1 = new Listbox(this, 20, 140, 200, 208, elements1, 25);
-        lb2 = new Listbox(this, 240, 140, 200, 208, elements2, 25);
+        lb2 = new Listbox(this, 240, 140, 200, 208, elements2, 1000);
 
-        add_button = new FunktorButton(this, 20, 80, 80, 40, "Uj elem",
-                          [=](){addItem(ib->getText(), spb1->getNum(), lb1); focused = nullptr;}); //always define after dropdown or listbox
+        main_button = new FunktorButton(this, 20, 80, 80, 40, "Uj elem",
+                          [=](){operation(ib->getText(), spb1->getNum(), lb1); focused = nullptr;}); //always define after dropdown or listbox
 
         delete_button1 = new FunktorButton(this, 20, 360, 80, 40, "Torol1",
                           [=](){deleteItem(lb1); focused = lb1;}); //always define after dropdown or listbox
@@ -72,6 +72,8 @@ public:
         stringstream ss;
         ss << "az elsodleges taroloban meg szabad: " << lb1->getFreeSpace();
         free_space_text = new StaticText(this, 0, 420, 350, 20, ss.str(), 255, 255, 255, 16);
+
+        rb = new Checkbox(this, 120, 80, 40, 40, "rb", [=](){operation(ib->getText(), spb1->getNum(), lb1); focused = nullptr;});
 
 
         /*
@@ -98,7 +100,7 @@ public:
         tr = new Textreader(this, 20, 350, 200, 200, filename);
 
         cb = new Checkbox(this, 830, 140, 40, 40, "cb");
-        rb = new Checkbox(this, 880, 140, 40, 40, "rb");
+
 
         */
     }
@@ -108,26 +110,54 @@ public:
         if (src->getIndexOfSelected() != -1) {
             dst->addItemToVector(src->getItem(src->getIndexOfSelected())->getT1(), src->getItem(src->getIndexOfSelected())->getT2());
             src->removeItemFromVector(src->getIndexOfSelected());
-            src->updateElements();
-            dst->updateElements();
-            src->autoAdjustSelectedItem();
+            src->updateElements(rb->getChecked());
+            dst->updateElements(rb->getChecked());
+            src->autoAdjustSelectedItem(rb->getChecked());
             src->draw();
         }
+    }
+
+    void operation(std::string item, int size, Listbox* dst) {
+        if (rb->getChecked()) {
+            dst->resetFilteredItemVector();
+            if (focused == main_button) {
+                searchFormInputbox();
+                dst->updateElements(rb->getChecked());
+                dst->autoAdjustSelectedItem(rb->getChecked());
+                dst->draw();
+            }
+            main_button->setTxt("Kereses");
+            main_button->draw();
+        } else if (!rb->getChecked()) {
+            dst->resetFilteredItemVector();
+            dst->updateElements(rb->getChecked());
+            dst->autoAdjustSelectedItem(rb->getChecked());
+            dst->draw();
+            if (focused == main_button)
+                addItem(item, size, dst);
+            main_button->setTxt("Uj elem");
+            main_button->draw();
+        }
+    }
+
+    void searchFormInputbox() {
+        for (Item<string, int>* i: lb1->getItemVector())
+            if (i->getT1() == ib->getText())
+                lb1->addItemToFilteredVector(i->getT1(), i->getT2());
     }
 
     void addItem(std::string item, int size, Listbox* dst) {
         if (item != "") {
             if (dst->getFreeSpace() - size >= 0) {
                 dst->addItemToVector(item, size);
-                dst->updateElements();
+                dst->updateElements(rb->getChecked());
                 dst->setFreeSpace(dst->getFreeSpace() - size);
-                dst->autoAdjustSelectedItem();
+                dst->autoAdjustSelectedItem(rb->getChecked());
                 dst->draw();
-            } else if (lb2->getFreeSpace() - size >= 0) {
+            } else {
                 lb2->addItemToVector(item, size);
-                lb2->updateElements();
-                lb2->setFreeSpace(lb2->getFreeSpace() - size);
-                lb2->autoAdjustSelectedItem();
+                lb2->updateElements(rb->getChecked());
+                lb2->autoAdjustSelectedItem(rb->getChecked());
                 lb2->draw();
             }
 
@@ -146,9 +176,9 @@ public:
                 int tmp = list->getFreeSpace() + list->getItem(list->getIndexOfSelected())->getT2();
 
                 list->removeItemFromVector(list->getIndexOfSelected());
-                list->updateElements();
+                list->updateElements(rb->getChecked());
                 list->setFreeSpace(tmp);
-                list->autoAdjustSelectedItem();
+                list->autoAdjustSelectedItem(rb->getChecked());
                 list->draw();
 
                 stringstream ss;
@@ -156,8 +186,8 @@ public:
                 free_space_text->setText(ss.str(), 255, 255, 255);
             } else {
                 list->removeItemFromVector(list->getIndexOfSelected());
-                list->updateElements();
-                list->autoAdjustSelectedItem();
+                list->updateElements(rb->getChecked());
+                list->autoAdjustSelectedItem(rb->getChecked());
                 list->draw();
             }
         }
@@ -165,32 +195,30 @@ public:
         //moving items
         if (lb1->getFreeSpace() != 0) {
 
-            int i = 0;
+            if (lb2->getItemVector().size() != 0) {
 
-            while (lb2->getItemVector().size() != 0 && i != -1) {
-                for (size_t j = 0; j < lb2->getItemVector().size(); j++)
-                    if (lb2->getItem(j)->getT2() < lb2->getItem(i)->getT2())
-                        i = j;
+                for (size_t i = 0; i < lb2->getItemVector().size(); i++) {
 
-                if (i != -1 && lb2->getItem(i)->getT2() <= lb1->getFreeSpace()) {
-                    lb1->addItemToVector(lb2->getItem(i)->getT1(), lb2->getItem(i)->getT2());
-                    lb1->setFreeSpace(lb1->getFreeSpace() - lb2->getItem(i)->getT2());
-                    lb2->removeItemFromVector(i);
-                    lb1->updateElements();
-                    lb2->updateElements();
+                    if (lb2->getItem(i)->getT2() <= lb1->getFreeSpace()) {
 
-                    lb1->autoAdjustSelectedItem();
-                    lb1->draw();
-                    lb2->autoAdjustSelectedItem();
-                    lb2->draw();
+                        lb1->addItemToVector(lb2->getItem(i)->getT1(), lb2->getItem(i)->getT2());
+                        lb1->setFreeSpace(lb1->getFreeSpace() - lb2->getItem(i)->getT2());
+                        lb2->removeItemFromVector(i);
+                        lb1->updateElements(rb->getChecked());
+                        lb2->updateElements(rb->getChecked());
 
-                    stringstream ss;
-                    ss << "az elsodleges taroloban meg szabad: " << lb1->getFreeSpace();
-                    free_space_text->setText(ss.str(), 255, 255, 255);
+                        lb1->autoAdjustSelectedItem(rb->getChecked());
+                        lb1->draw();
+                        lb2->autoAdjustSelectedItem(rb->getChecked());
+                        lb2->draw();
 
-                    i = 0;
-                } else
-                    i = -1;
+                        stringstream ss;
+                        ss << "az elsodleges taroloban meg szabad: " << lb1->getFreeSpace();
+                        free_space_text->setText(ss.str(), 255, 255, 255);
+
+                        i--;
+                    }
+                }
             }
         }
     }

@@ -1,8 +1,8 @@
 #include "checkbox.hpp"
 using namespace genv;
 
-Checkbox::Checkbox(Application* _parent, int _x, int _y, int _sx, int _sy, std::string _type):
-                         Widget(_parent,     _x,     _y,     _sx,     _sy),       type(_type)
+Checkbox::Checkbox(Application* _parent, int _x, int _y, int _sx, int _sy, std::string _type, std::function<void()> _f):
+                         Widget(_parent,     _x,     _y,     _sx,     _sy),       type(_type),                    f(_f)
 {
 
 }
@@ -51,4 +51,6 @@ void Checkbox::draw() {
 void Checkbox::handle(genv::event ev, Widget * w) {
     if (ev.button == btn_left && w->onWidget(ev))
         checked = !checked;
+    if (ev.type == ev_mouse && ev.button < 0)
+        f();
 }

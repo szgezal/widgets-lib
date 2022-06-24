@@ -21,14 +21,14 @@ public:
 class Listbox : public Widget
 {
 protected:
+    vector<Item<string, int>*> item_vector = {};
+    vector<Item<string, int>*> filtered_item_vector = {};
     vector<string> elements;
-    vector<string> original_elements = elements;
+    //vector<string> original_elements = elements;
     int index_of_selected = -1;
     int wheel_offset = 0;
-    bool filtering = false;
+    //bool filtering = false;
 
-    //project
-    vector<Item<string, int>*> item_vector = {};
     int free_space;
 
 public:
@@ -43,19 +43,23 @@ public:
     int getIndexOfSelected() {return index_of_selected;}
     Item<string, int>* getItem(int ind) {return item_vector[ind];}
     vector<Item<string, int>*> getItemVector() {return item_vector;}
+    vector<Item<string, int>*> getFilteredItemVector() {return filtered_item_vector;}
     int getFreeSpace() {return free_space;}
 //    vector<string> getElements() {return elements;}
 //    vector<string> getOriginalElements() {return original_elements;}
 
     //setters
-    void autoAdjustSelectedItem();
-    void updateElements();
-    void setFiltering(bool f) {filtering = f;}
+    void updateElements(bool);
+    void autoAdjustSelectedItem(bool);
     void addItemToVector(string, int);
+    void addItemToFilteredVector(string, int);
     void setFreeSpace(int szam) {free_space = szam;}
+    //void setFiltering(bool f) {filtering = f;}
 
     //others
     void removeItemFromVector(int);
+    void removeItemFromFilteredVector(int);
+    void resetFilteredItemVector() {filtered_item_vector = {};}
 //    void addElement(string);
 //    void removeElement();
 //    void removeElement(int);

@@ -19,7 +19,7 @@ public:
     void handle(genv::event, Widget*) override;
 };
 
-class FunktorButton : Button {
+class FunktorButton : public Button {
 protected:
     std::string txt;
     std::function<void()> f;
@@ -29,6 +29,7 @@ public:
     void handle(genv::event, Widget*) override;
     bool onWidget(genv::event) override;
     void update(genv::event);
+    void setTxt(std::string s) {txt = s;}
 };
 
 class ButtonUp : public Button {
